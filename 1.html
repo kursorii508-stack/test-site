@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Панель мониторинга узла</title>
+    <style>
+        body { background: #050505; color: #00ff41; font-family: 'Courier New', monospace; padding: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 900px; margin: auto; }
+        .card { border: 1px solid #00ff41; padding: 15px; background: rgba(0, 255, 65, 0.05); box-shadow: 0 0 10px rgba(0, 255, 65, 0.2); }
+        h1 { text-align: center; text-transform: uppercase; letter-spacing: 5px; border-bottom: 2px solid #00ff41; padding-bottom: 10px; }
+        .value { font-size: 2.5rem; font-weight: bold; display: block; margin-top: 10px; }
+        .label { font-size: 0.8rem; color: #008f11; text-transform: uppercase; }
+        .alert { color: #ff0000; text-shadow: 0 0 5px #ff0000; animation: blink 0.5s infinite; visibility: hidden; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0; } }
+    </style>
+</head>
+<body>
+
+    <h1>Node Status: <span id="node-id">STATION-01</span></h1>
+    <p style="text-align: center;" id="attack-msg" class="alert">ВНИМАНИЕ: КРИТИЧЕСКАЯ НАГРУЗКА ПАКЕТАМИ!</p>
+
+    <div class="grid">
+        <!-- Нагрузка в процентах -->
+        <div class="card">
+            <span class="label">Загрузка системы (CPU/MEM)</span>
+            <span class="value" id="cpu-load">0%</span>
+        </div>
+
+        <!-- Пакетов в секунду -->
+        <div class="card">
+            <span class="label">Входящий трафик (PPS)</span>
+            <span class="value" id="pps-load">0</span>
+        </div>
+
+        <!-- Телеботы -->
+        <div class="card">
+            <span class="label">Активные Телеграм-боты</span>
+            <span class="value" id="bot-count">0</span>
+        </div>
+
+        <!-- Состояние канала -->
+        <div class="card">
+            <span class="label">Задержка (Latency)</span>
+            <span class="value" id="ping">14ms</span>
+        </div>
+    </div>
+
+    <script>
+        // Генерация ID узла
+        document.getElementById('node-id').innerText = 'NODE-' + Math.floor(Math.random()*1000);
+
+        function updateStats() {
+            // Замеряем задержку выполнения кода (если система под дос, будет лагать)
+            let start = performance.now();
+            
+            setTimeout(() => {
+                let end = performance.now();
+                let delta = end - start; // Насколько сильно тормозит браузер
+                
+                let loadPercent, pps;
+
+                if (delta > 10) { // Если задержка выше нормы (атака началась)
+                    loadPercent = Math.min(99, Math.floor(delta * 5));
+                    pps = Math.floor(75000 + Math.random() * 10000); // Показываем твои 80к
+                    document.getElementById('attack-msg').style.visibility = 'visible';
+                } else {
+                    loadPercent = Math.floor(Math.random() * 5 + 1);
+                    pps = Math.floor(Math.random() * 50);
+                    document.getElementById('attack-msg').style.visibility = 'hidden';
+                }
+
+                // Обновляем данные на сайте
+                document.getElementById('cpu-load').innerText = loadPercent + "%";
+                document.getElementById('pps-load').innerText = pps.toLocaleString();
+                document.getElementById('bot-count').innerText = Math.floor(pps / 1000); // Пример связи ботов с пакетами
+                document.getElementById('ping').innerText = Math.floor(delta + 10) + "ms";
+
+            }, 0);
+        }
+
+        setInterval(updateStats, 1000);
+    </script>
+</body>
+</html>
